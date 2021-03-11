@@ -1,0 +1,46 @@
+package com.me.mygdxgame;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+public class Missile {
+
+	public Texture missiletexture;
+	public Sprite missilesprite;
+	public float xposition;
+	public float yposition;
+	public float width;
+	public float height;
+	public float angle;
+	public boolean active;
+	
+	public Missile(float x, float y)
+	{
+		missiletexture = new Texture(Gdx.files.internal("mis1.png"));
+		missilesprite = new Sprite(missiletexture);
+		xposition = x;
+		yposition = y;
+		width = missiletexture.getWidth();
+		height = missiletexture.getHeight();
+		this.active = true;
+	}
+	
+	public void draw(SpriteBatch batch)
+	{
+		batch.draw(missiletexture, xposition-width/2, yposition - height/2);
+	}
+	
+	public void update()
+	{
+		getangle();
+		missilesprite.setRotation(angle);
+		xposition += 1;
+	}
+	
+	public void getangle()
+	{
+		
+	}
+}

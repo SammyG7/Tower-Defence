@@ -1,0 +1,276 @@
+package com.me.mygdxgame;
+
+import java.util.ArrayList;
+
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
+
+public class ZombieTD implements ApplicationListener {
+	
+	public SpriteBatch batch;
+	public Texture backgroundtexture;
+	
+	boolean cannontype = true;
+	boolean aim = false;
+	
+	public Sprite button;
+	public Texture btexture;
+	
+	public static ArrayList<Cannon> cannonlist = new ArrayList<Cannon>();
+	public static ArrayList<Zombie> zombielist = new ArrayList<Zombie>();
+	public static ArrayList<Bullet> bulletlist = new ArrayList<Bullet>();
+	public static ArrayList<Explosion> explosionlist = new ArrayList<Explosion>();
+	public static ArrayList<PZombie> pzombielist = new ArrayList<PZombie>();
+	public static ArrayList<Launcher> mllist = new ArrayList<Launcher>();
+	public static ArrayList<Missile> mislist = new ArrayList<Missile>();
+	
+	
+	@Override
+	public void create() {		
+		batch = new SpriteBatch();
+		backgroundtexture = new Texture(Gdx.files.internal("Grassybackground.png"));
+		btexture = new Texture(Gdx.files.internal("buttons.png"));
+		button = new Sprite(btexture, 100, 590);
+		
+		for(int i = 0; i < 3; i++)
+		{
+			zombielist.add(new Zombie(1024+i*50, 275));
+		}
+		
+		for(int i = 0; i < 3; i++)
+		{
+			pzombielist.add(new PZombie(1024+i*50, 275));
+		}
+	}
+
+	@Override
+	public void dispose() {
+		
+	}
+
+	
+	@Override
+	public void render() {		
+		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		//controls();
+		update();
+		
+		batch.begin();
+		 batch.draw(backgroundtexture, 0, 0);
+		
+		 for (int i= 0; i < cannonlist.size(); i++){ //drawing each cannon
+			cannonlist.get(i).draw(batch);
+		 }
+		 for (int i= 0; i < zombielist.size(); i++){
+				zombielist.get(i).draw(batch);
+				System.out.println(zombielist.get(i).infront);
+		 }		 
+		 for (int i= 0; i < bulletlist.size(); i++){
+				bulletlist.get(i).draw(batch);
+		 }
+		 for (int i= 0; i < explosionlist.size(); i++){
+				explosionlist.get(i).draw(batch);
+		 }
+		 for (int i= 0; i < pzombielist.size(); i++){
+				pzombielist.get(i).draw(batch);
+		 }	
+		 for (int i= 0; i < mllist.size(); i++){ //drawing each cannon
+				mllist.get(i).draw(batch);
+		 }
+		 for (int i= 0; i < mislist.size(); i++){ 
+				mislist.get(i).draw(batch);
+		 }
+		 
+		UI.draw(batch);
+		button.draw(batch);
+		 
+		batch.end();
+		
+	}
+
+	@Override
+	public void resize(int width, int height) {
+	}
+
+	@Override
+	public void pause() {
+	}
+
+	@Override
+	public void resume() {
+	}
+	
+	public void controls(){
+		if (Gdx.input.justTouched()){
+			
+			int x;
+			int y;
+			
+
+			x = Gdx.input.getX();
+			y = Gdx.graphics.getHeight() - Gdx.input.getY();
+			
+			System.out.println(x +", " + y);
+			if(x < 100 && y > 500)
+			{
+				aim = !aim;
+			}
+			else if(aim)
+			{
+				for(int i = 0; i < mllist.size(); i++)
+				{
+				mllist.get(i).getangle(x, y);
+				mllist.get(i).fire();
+				}
+			}
+			else if(UI.gold >= 10 && buildArea(x, y))
+			{
+				cannontype = !cannontype;
+				if(cannontype)
+				{
+				cannonlist.add(new Cannon(x, y));
+				}
+				else
+				{
+				mllist.add(new Launcher(x, y));
+				}
+				UI.gold -= 10;
+			}
+		}
+	}
+	
+	void update()
+	{
+		controls();
+		removeSprites();
+		checkCollisions();
+		
+		for(int i = 0; i < cannonlist.size(); i++)
+		{
+			cannonlist.get(i).update();
+		}
+		for(int i = 0; i < mllist.size(); i++)
+		{
+			mllist.get(i).update();
+		}
+		
+		for(int p = 0; p < pzombielist.size(); p++)
+		{
+		for(int i = 0; i < zombielist.size(); i++)
+		{		
+				if(zombielist.get(0).xposition < pzombielist.get(0).xposition && !ZombieTD.zombielist.isEmpty())
+				{
+					zombielist.get(i).infront = true;
+				}
+				else if(!ZombieTD.pzombielist.isEmpty())
+				{
+					zombielist.get(i).infront = false;
+				}
+			}
+		}
+		
+		
+		for(int i = 0; i < bulletlist.size(); i++)
+		{
+			bulletlist.get(i).update();
+		}
+		for(int i = 0; i < explosionlist.size(); i++)
+		{
+			explosionlist.get(i).update();
+		}
+		for(int p = 0; p < pzombielist.size(); p++)
+		{
+			pzombielist.get(p).update();
+		}
+		for(int i = 0; i < zombielist.size(); i++)
+		{
+			zombielist.get(i).update();
+		}
+		for(int i = 0; i < mislist.size(); i++)
+		{
+			mislist.get(i).update();
+		}
+	}
+	
+	private void removeSprites()
+	{
+		for(int i = 0;i < zombielist.size(); i++)
+		{
+			if(zombielist.get(i).active == false)
+			{
+				zombielist.remove(i);
+				UI.gold += 10;
+			}
+		}
+		
+		for(int i = 0;i < pzombielist.size(); i++)
+		{
+			if(pzombielist.get(i).active == false)
+			{
+				pzombielist.remove(i);
+				UI.gold += 10;
+			}
+		}
+		
+		for(int i = 0;i < bulletlist.size(); i++)
+		{
+			if(bulletlist.get(i).active == false)
+			{
+				bulletlist.remove(i);
+			}
+		}
+		
+		for(int i = 0;i < explosionlist.size(); i++)
+		{
+			if(explosionlist.get(i).active == false)
+			{
+				explosionlist.remove(i);
+			}
+		}
+
+	}
+	
+	public void checkCollisions()
+	{
+		if(!zombielist.isEmpty())
+		{
+			for (int i = 0; i < bulletlist.size(); i++)
+			{
+				if(Intersector.overlaps(bulletlist.get(i).getCircle(), zombielist.get(0).getRectangle()))
+				{
+					zombielist.get(0).takeDamage();
+					bulletlist.get(0).active = false;
+					explosionlist.add(new Explosion(bulletlist.get(0).xposition, bulletlist.get(0).yposition));
+				}
+			}
+		}
+		
+		if(!pzombielist.isEmpty())
+		{
+			for (int i = 0; i < bulletlist.size(); i++)
+			{
+				if(Intersector.overlaps(bulletlist.get(i).getCircle(), pzombielist.get(0).getRectangle()))
+				{
+					pzombielist.get(0).takeDamage();
+					bulletlist.get(0).active = false;
+					explosionlist.add(new Explosion(bulletlist.get(0).xposition, bulletlist.get(0).yposition));
+				}
+			}
+		}
+	}
+	
+	private boolean buildArea(int x, int y)
+	{
+		return (y < 500 && y > 300 || y < 200);
+	}
+}

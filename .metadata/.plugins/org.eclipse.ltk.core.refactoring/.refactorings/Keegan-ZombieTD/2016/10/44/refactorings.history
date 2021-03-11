@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.me.mygdxgame.MyGdxGame&apos; to &apos;ZombieTD&apos;&#x0D;&#x0A;- Original project: &apos;Keegan-ZombieTD&apos;&#x0D;&#x0A;- Original element: &apos;com.me.mygdxgame.MyGdxGame&apos;&#x0D;&#x0A;- Renamed element: &apos;com.me.mygdxgame.ZombieTD&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;MyGdxGame&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;com.me.mygdxgame{MyGdxGame.java[MyGdxGame" matchStrategy="1" name="ZombieTD" qualified="false" references="true" similarDeclarations="false" stamp="1477755792436" textual="false" version="1.0"/>
+</session>
